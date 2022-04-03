@@ -354,34 +354,40 @@ def findMatchFromLauncher():
     target_index = 0
     game_has_started = False
     while exitNotPressed() and not game_has_started:
+        def acceptButtonOnSight():
+            launcher_region = (currentWindow.x, currentWindow.y,
+                            currentWindow.width, currentWindow.height)
+            accept_button = getButtonLauncher('accept', launcher_region)
+            if accept_button == None:
+                return False
+            return True
+
         time.sleep(0.6)  # <--- CHECAR ESTO LUEGO
 
         # Picking champion
-        if find_match[target_index] == 'pickChamp':
-            time.sleep(15)
-            print("Picking champion...")
-            for n in range(5):
-                currentWindow.click(
-                    targets['pickChamp']['x'] + n * targets['pickChamp']['x_gap'], targets['pickChamp']['y'])
-                time.sleep(0.2)
+        if target_index < len(find_match):
+            if find_match[target_index] == 'pickChamp':
+                time.sleep(15)
+                print("Picking champion...")
+                for n in range(5):
+                    currentWindow.click(
+                        targets['pickChamp']['x'] + n * targets['pickChamp']['x_gap'], targets['pickChamp']['y'])
+                    time.sleep(0.2)
+            else:
+                # Check if match was rejected
+                if acceptButtonOnSight():
+                    target_index = find_match.index('accept')
+
+                def interruptor():
+                    print('interruptor: ', acceptButtonOnSight())
+                    return not acceptButtonOnSight()
+
+                currentWindow.searchAndClickUntilFound(
+                    find_match[target_index], launcher_width)
         else:
             # Check if match was rejected
-            def acceptButtonOnSight():
-                launcher_region = (currentWindow.x, currentWindow.y,
-                                   currentWindow.width, currentWindow.height)
-                accept_button = getButtonLauncher('accept', launcher_region)
-                if accept_button == None:
-                    return False
-                return True
-            if acceptButtonOnSight():
-                target_index = find_match.index('accept')
-
-            def interruptor():
-                print('interruptor: ', acceptButtonOnSight())
-                return not acceptButtonOnSight()
-
-            currentWindow.searchAndClickUntilFound(
-                find_match[target_index], launcher_width)
+                if acceptButtonOnSight():
+                    target_index = find_match.index('accept')
 
         target_index += 1
 
@@ -497,39 +503,47 @@ def findMatchAgain():
     target_index = 0
     game_has_started = False
     while exitNotPressed() and not game_has_started:
+        def acceptButtonOnSight():
+            launcher_region = (currentWindow.x, currentWindow.y,
+                            currentWindow.width, currentWindow.height)
+            accept_button = getButtonLauncher('accept', launcher_region)
+            if accept_button == None:
+                return False
+            return True
+
         time.sleep(0.6)  # <--- CHECAR ESTO LUEGO
 
         # Picking champion
-        if find_match_again[target_index] == 'pickChamp':
-            time.sleep(15)
-            print("Picking champion...")
-            for n in range(5):
-                currentWindow.click(
-                    targets['pickChamp']['x'] + n * targets['pickChamp']['x_gap'], targets['pickChamp']['y'])
-                time.sleep(0.2)
+        if target_index < len(find_match_again):
+            if find_match_again[target_index] == 'pickChamp':
+                time.sleep(15)
+                print("Picking champion...")
+                for n in range(5):
+                    currentWindow.click(
+                        targets['pickChamp']['x'] + n * targets['pickChamp']['x_gap'], targets['pickChamp']['y'])
+                    time.sleep(0.2)
+            else:
+                # Check if match was rejected
+                if acceptButtonOnSight():
+                    target_index = find_match_again.index('accept')
+
+                def interruptor():
+                    print('interruptor: ', acceptButtonOnSight())
+                    return not acceptButtonOnSight()
+
+                currentWindow.searchAndClickUntilFound(
+                    find_match_again[target_index], launcher_width)
         else:
             # Check if match was rejected
-            def acceptButtonOnSight():
-                launcher_region = (currentWindow.x, currentWindow.y,
-                                   currentWindow.width, currentWindow.height)
-                accept_button = getButtonLauncher('accept', launcher_region)
-                if accept_button == None:
-                    return False
-                return True
-            if acceptButtonOnSight():
-                target_index = find_match_again.index('accept')
-
-            def interruptor():
-                return not acceptButtonOnSight()
-
-            currentWindow.searchAndClickUntilFound(
-                find_match_again[target_index], launcher_width, interruptor=interruptor)
+                if acceptButtonOnSight():
+                    target_index = find_match_again.index('accept')
 
         target_index += 1
 
         windows = pyautogui.getWindowsWithTitle(game_title)
         if len(windows) > 0:
             game_has_started = True
+
 
 
 def cycle_fromBeginning():
@@ -572,7 +586,7 @@ def cycle_test():
 
 
 # Main
-cycle_fromBeginning()
+cycle_fromGame()
 # cycle_test()
 
 # Watch health
