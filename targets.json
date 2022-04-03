@@ -1,0 +1,74 @@
+{
+    "play": {
+        "x": 0,
+        "y": 0,
+        "search_width": 8,
+        "search_height": 3
+    },
+    "ai": {
+        "x": 3,
+        "y": 3,
+        "search_width": 6,
+        "search_height": 3
+    },
+    "intermedia": {
+        "x": 16,
+        "y": 21,
+        "search_width": 8,
+        "search_height": 2
+    },
+    "confirm": {
+        "x": 17,
+        "y": 26,
+        "search_width": 9,
+        "search_height": 3
+    },
+    "findMatch": {
+        "x": 17,
+        "y": 26,
+        "search_width": 9,
+        "search_height": 3
+    },
+    "accept": {
+        "x": 20,
+        "y": 20,
+        "search_width": 11,
+        "search_height": 5
+    },
+    "playAgain": {
+        "x": 17,
+        "y": 26,
+        "search_width": 9,
+        "search_height": 3
+    },
+    "pickRandom": {
+        "x": 17,
+        "y": 26,
+        "search_width": 9,
+        "search_height": 3
+    },
+    "pickChamp": {
+        "x": 15.5,
+        "y": 6.5,
+        "x_gap": 4,
+        "y_gap": 4
+    },
+    "lockChamp": {
+        "x": 21.5,
+        "y": 23,
+        "search_width": 9,
+        "search_height": 3
+    },
+    "continue": {
+        "x": 32,
+        "y": 23,
+        "search_width": 13,
+        "search_height": 5
+    },
+    "close": {
+        "x": 10,
+        "y": 2,
+        "search_width": 62,
+        "search_height": 30
+    }
+}
