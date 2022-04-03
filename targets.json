@@ -70,5 +70,51 @@
         "y": 2,
         "search_width": 62,
         "search_height": 30
-    }
+    },
+    "fountain": {
+        "x": 66.56,
+        "y": 42.36
+    },
+    "topA": {
+        "x": 67.24,
+        "y": 34.20
+    },
+    "botA": {
+        "x": 66.56,
+        "y": 42.36
+    },
+    "nexus": {
+        "x": 75.00,
+        "y": 33.84
+    },
+    "hoverSelect": {
+        "x": 35,
+        "y": 15.5
+    },
+    "championsPosition": [
+        { "name": "darius",
+            "position": 4,
+            "out_of": 5
+        },
+        { "name": "caitlyn",
+            "position": 2,
+            "out_of": 3
+        },
+        { "name": "riven",
+            "position": 2,
+            "out_of": 3
+        },
+        { "name": "ziggs",
+            "position": 3,
+            "out_of": 3
+        },
+        { "name": "nami",
+            "position": 3,
+            "out_of": 3
+        },
+        { "name": "ekko",
+            "position": 1,
+            "out_of": 3
+        }
+    ]
 }
