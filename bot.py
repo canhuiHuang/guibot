@@ -1,5 +1,6 @@
 import json
 from operator import indexOf
+from cv2 import getBuildInformation
 from pyautogui import *
 import pyautogui
 import time
@@ -124,8 +125,6 @@ class WindowInstance:
         search_height = int(
             (self.stored_regions[region_name]['search_height'] / h) * self.height)
 
-        print('focus region: ', (self.x + region_x, self.y +
-              region_y, search_width, search_height))
         return (self.x + region_x, self.y + region_y, search_width, search_height)
 
     def setNewFocusRegion(self, regionObj):
@@ -141,7 +140,19 @@ class WindowInstance:
         x = self.x + random.randint(0, self.width - 1)
         y = self.y + random.randint(0, self.height - 1)
 
-        rightClick(x, y)
+        right_click(x, y)
+
+    def rightClickAt(self, x_fr, y_fr, proportions=game_proportions):
+        x = int(self.x + (x_fr / proportions['width']) * self.width)
+        y = int(self.y + (y_fr / proportions['height']) * self.height)
+
+        right_click(x, y, random.randint(1, 10) / 100)
+
+    def clickAt(self, x_fr, y_fr, proportions=game_proportions):
+        x = int(self.x + (x_fr / proportions['width']) * self.width)
+        y = int(self.y + (y_fr / proportions['height']) * self.height)
+
+        click(x, y, random.randint(1, 10) / 100)
 
     def attackWalkRandomCoord(self):
         x = self.x + random.randint(0, self.width - 1)
@@ -160,26 +171,41 @@ class WindowInstance:
     def defaultInterruptor():
         return True
 
-    def searchAndClickUntilFound(self, target, window_width, wait=0.0, language_independent=False, window_name="launcher", window_title=launcher_title, interruptor=defaultInterruptor):
+    def searchAndClickUntilFound(self, target, window_width, wait=0.0, language_independent=False, window_name="launcher", window_title=launcher_title, interruptor=defaultInterruptor, limit=-1):
         time.sleep(wait)
         self.setFocusRegionsFromStore(target, window_name)
 
         clicked = False
-        while not clicked and interruptor():
+        stop = False
+        count = 0
+        while not clicked and interruptor() and not stop:
             print('Searching... ', self.title, self.focus_region)
             clicked = self.searchAndClick(
                 target, window_width, language_independent, click, window_title)
 
-    def searchAndRightClickUntilFound(self, target, window_width, wait=0.0, language_independent=False, window_name="launcher", window_title=launcher_title):
+            if limit > 0:
+                count += 1
+                if count >= limit:
+                    stop = True
+
+    def searchAndRightClickUntilFound(self, target, window_width, wait=0.0, language_independent=False, window_name="launcher", window_title=launcher_title, limit=-1):
         time.sleep(wait)
         self.setFocusRegionsFromStore(target, window_name)
 
         clicked = False
-        while not clicked:
+        stop = False
+        count = 0
+        while not clicked and not stop:
             clicked = self.searchAndClick(
-                target, window_width, language_independent, rightClick, window_title)
+                target, window_width, language_independent, right_click, window_title)
+
+            if limit > 0:
+                count += 1
+                if count >= limit:
+                    stop = True
 
     # Search target & click on it if found
+
     def searchAndClickOnce(self, target, window_width, wait=0.0, language_independent=False, window_name="launcher", window_title=launcher_title):
         time.sleep(wait)
         self.setFocusRegionsFromStore(target, window_name)
@@ -199,6 +225,13 @@ class WindowInstance:
         if float:
             return (x, y)
         return (int(x), int(y))
+
+    def getCoordsFromTarget(self, target, proportions=game_proportions):
+        x = int(self.x + (targets[target]['x'] /
+                proportions['width']) * self.width)
+        y = int(self.y + (targets[target]['y'] /
+                proportions['height']) * self.height)
+        return (x, y)
 
     def getProportionFromTitle(window_title=launcher_title):
         if window_title == launcher_title:
@@ -297,16 +330,22 @@ def exitNotPressed():
     return not (keyboard.is_pressed('ctrl+escape') or keyboard.is_pressed('ctrl+shift+q'))
 
 
-def getButton(target, window_title=game_title):
+def getButton(target, window_title=game_title, language_independent=False, confidence=image_accuracy):
     windows = pyautogui.getWindowsWithTitle(window_title)
+
+    def imagePath():
+        if language_independent:
+            return f"resources/{target}{game_width}.png"
+        else:
+            return f"resources/{language}/{target}{game_width}.png"
 
     if len(windows) > 0:
         currentWindow.setWindow(windows[0])
         currentWindow.setFocusRegionsFromStore(
             region_name=target, window_name="game")
-        print(target, pyautogui.locateOnScreen(
-            f"resources/{language}/{target}{game_width}.png", region=currentWindow.getFocusRegionsFromStore(region_name=target, window_name="game"), confidence=image_accuracy))
-        return pyautogui.locateOnScreen(f"resources/{language}/{target}{game_width}.png", region=currentWindow.getFocusRegionsFromStore(region_name=target, window_name="game"), confidence=image_accuracy)
+        print('Getting ', target, pyautogui.locateOnScreen(
+            imagePath(), region=currentWindow.getFocusRegionsFromStore(region_name=target, window_name="game"), confidence=confidence))
+        return pyautogui.locateOnScreen(imagePath(), region=currentWindow.getFocusRegionsFromStore(region_name=target, window_name="game"), confidence=confidence)
     return None
 
 
@@ -356,7 +395,7 @@ def findMatchFromLauncher():
     while exitNotPressed() and not game_has_started:
         def acceptButtonOnSight():
             launcher_region = (currentWindow.x, currentWindow.y,
-                            currentWindow.width, currentWindow.height)
+                               currentWindow.width, currentWindow.height)
             accept_button = getButtonLauncher('accept', launcher_region)
             if accept_button == None:
                 return False
@@ -386,8 +425,8 @@ def findMatchFromLauncher():
                     find_match[target_index], launcher_width)
         else:
             # Check if match was rejected
-                if acceptButtonOnSight():
-                    target_index = find_match.index('accept')
+            if acceptButtonOnSight():
+                target_index = find_match.index('accept')
 
         target_index += 1
 
@@ -408,34 +447,127 @@ def waitGameToLaunch():
 
 
 def blindClickGame():
+    def buy(item_name):
+        press_key('p')
+
+        time.sleep(2)
+        if getButtonNew('searchShopItem') != None:
+            currentWindow.searchAndClickUntilFound(
+                'searchShopItem', window_width=game_width, window_name='game', window_title=game_title, limit=4)
+            typewrite(targets[item_name]['search_term'])
+            time.sleep(0.5)
+            currentWindow.searchAndRightClickUntilFound(
+                item_name, window_width=game_width, window_name='game', window_title=game_title, limit=4)
+
+            time.sleep(0.4)
+            if getButtonNew('redo') != None:
+                press_key('p')
+                return True
+            press_key('p')
+        return False
+
     # Game in progress
-    while exitNotPressed() and getButton('continue') == None:
+    buy_count = 0
+    items_to_buy = ['doranSword', 'krakenSlayer']
+    game_in_progress = True
+    lane_to_go = random.randint(1, 3)
+    aggresive_pushing = False
+    seconds = 0
+    while exitNotPressed() and getButton('continue') == None and game_in_progress:
 
         if len(pyautogui.getWindowsWithTitle(game_title)) > 0:
-            # Update current window position ( In case the window is moving )
-            game = getWindowObj(currentWindow.title)
+            # Check health
+            low_health_point = currentWindow.getCoordsFromTarget('lowHp')
+            if pyautogui.pixelMatchesColor(low_health_point[0], low_health_point[1], expectedRGBColor=(1, 13, 7), tolerance=12):
+                print('low health!')
+                cur_time = 0
+                time_limit = 50
 
-            # Attack-walk to random coord
-            currentWindow.setWindow(game)
-            currentWindow.attackWalkRandomCoord()
+                # Walk to fountain
+                fountain = currentWindow.getCoordsFromTarget('fountain')
+                currentWindow.clickAt(fountain[0], fountain[1])
 
-            # Close store if open
-            close_button = getButton('close')
-            if close_button != None:
-                press_key('p')
-            # currentWindow.searchAndClickOnce(
-            #     'close', game_width, language_independent=True, window_name="game", window_title="launcher_title")
+                # Wait for hp to get full
+                full_hp = getButton('fullHp', language_independent=True)
+                while full_hp == None:
+                    time.sleep(2)
+                    currentWindow.clickAt(fountain[0], fountain[1])
+                    cur_time += 2
 
-            time.sleep(8)
+                    if cur_time >= time_limit:
+                        break
 
-            # Attack forward mid, top, bot
+                # Buy something from shop
+                if buy_count < len(items_to_buy):
+                    if buy(items_to_buy[buy_count]):
+                        buy_count += 1
+
+                # Set new lane to go
+                lane_to_go = random.randint(1, 3)
+
+            # Attack forward (Top, Mid, Bot)
+            if aggresive_pushing:
+                nexus = currentWindow.getCoordsFromTarget('nexus')
+                attackWalk(nexus[0], nexus[1])
+            elif lane_to_go == 1:
+                topA = currentWindow.getCoordsFromTarget('topA')
+                attackWalk(topA[0], topA[1])
+            elif lane_to_go == 2:
+                midA = currentWindow.getCoordsFromTarget('midA')
+                attackWalk(midA[0], midA[1])
+            elif lane_to_go == 3:
+                botA = currentWindow.getCoordsFromTarget('botA')
+                attackWalk(botA[0], botA[1])
+
+            # Miscellaneous Periodic checks
+            if seconds % 6 == 0:
+                # Update current window position ( In case the window is moving )
+                game = getWindowObj(currentWindow.title)
+                currentWindow.setWindow(game)
+
+                # Lock camera
+                unlock_icon = getButton(
+                    'unlockedCamera', language_independent=True, confidence=0.98)
+                if unlock_icon != None:
+                    press_key('y')
+
+                # Attack-walk to random coord
+                currentWindow.attackWalkRandomCoord()
+
+                # Close store if open
+                close_button = getButton('close', language_independent=True)
+                if close_button != None:
+                    press_key('p')
+
+            # Every 1:30 minute, trigger between defensive and aggresive pushing
+            if seconds % 90 == 0 and seconds != 0:
+                aggresive_pushing = not aggresive_pushing
+
+                # Temporary shopping
+
+                # Walk to fountain
+                fountain = currentWindow.getCoordsFromTarget('fountain')
+                currentWindow.rightClickAt(fountain[0], fountain[1])
+                # Wait for hp to get full
+                time.sleep(30)
+
+                # Buy something from shop
+                buy('doranSword')
 
             # Move back a little
+            if random.randint(1, 10) == 1:
+                fountain = currentWindow.getCoordsFromTarget('fountain')
+                currentWindow.clickAt(fountain[0], fountain[1])
 
-            # if health bar is black in x location, move back to fountain
+            time.sleep(1)
+            print('Time: ', seconds, 'Aggresive pushing: ',
+                  aggresive_pushing, 'lane: ', lane_to_go)
+            seconds += 1
 
-            # Get out of cfountain
-            # When health bar is green in full location, move forward
+        else:
+            time.sleep(32)
+            if len(pyautogui.getWindowsWithTitle(game_title)) <= 0:
+                game_in_progress = False
 
     # Game is over
     continue_button = getButton('continue')
@@ -505,7 +637,7 @@ def findMatchAgain():
     while exitNotPressed() and not game_has_started:
         def acceptButtonOnSight():
             launcher_region = (currentWindow.x, currentWindow.y,
-                            currentWindow.width, currentWindow.height)
+                               currentWindow.width, currentWindow.height)
             accept_button = getButtonLauncher('accept', launcher_region)
             if accept_button == None:
                 return False
@@ -535,15 +667,14 @@ def findMatchAgain():
                     find_match_again[target_index], launcher_width)
         else:
             # Check if match was rejected
-                if acceptButtonOnSight():
-                    target_index = find_match_again.index('accept')
+            if acceptButtonOnSight():
+                target_index = find_match_again.index('accept')
 
         target_index += 1
 
         windows = pyautogui.getWindowsWithTitle(game_title)
         if len(windows) > 0:
             game_has_started = True
-
 
 
 def cycle_fromBeginning():
@@ -586,7 +717,7 @@ def cycle_test():
 
 
 # Main
-cycle_fromGame()
+cycle_fromBeginning()
 # cycle_test()
 
 # Watch health

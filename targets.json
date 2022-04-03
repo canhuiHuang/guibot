@@ -71,6 +71,50 @@
         "search_width": 62,
         "search_height": 30
     },
+    "unlockedCamera": {
+        "x": 62,
+        "y": 41,
+        "search_width": 5,
+        "search_height": 3
+    },
+    "searchShopItem": {
+        "x": 0,
+        "y": 0,
+        "search_width": 75,
+        "search_height": 42
+    },
+    "redo": {
+        "x": 0,
+        "y": 0,
+        "search_width": 75,
+        "search_height": 42
+    },
+    "doranSword": {
+        "x": 0,
+        "y": 0,
+        "search_width": 75,
+        "search_height": 42,
+        "search_term": "doran"
+    },
+    "krakenSlayer": {
+        "x": 0,
+        "y": 0,
+        "search_width": 75,
+        "search_height": 42,
+        "search_term": "kraken"
+    },
+    "fullHp": {
+        "x": 37.5,
+        "y": 40.5,
+        "search_width": 9,
+        "search_height": 3
+    },
+    "lowHp": {
+        "x": 32,
+        "y": 40.5,
+        "search_width": 9,
+        "search_height": 3
+    },
     "fountain": {
         "x": 66.56,
         "y": 42.36
@@ -79,9 +123,13 @@
         "x": 67.24,
         "y": 34.20
     },
+    "midA": {
+        "x": 71.28,
+        "y": 37.68
+    },
     "botA": {
-        "x": 66.56,
-        "y": 42.36
+        "x": 74.76,
+        "y": 41.36
     },
     "nexus": {
         "x": 75.00,
