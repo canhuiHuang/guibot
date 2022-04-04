@@ -168,20 +168,20 @@ class WindowInstance:
               (self.y + int((dy/h) * self.height)))
 
     # Search for target & wait until it is found
-    def defaultInterruptor():
-        return True
-
-    def searchAndClickUntilFound(self, target, window_width, wait=0.0, language_independent=False, window_name="launcher", window_title=launcher_title, interruptor=defaultInterruptor, limit=-1):
+    def searchAndClickUntilFound(self, target, window_width, wait=0.0, language_independent=False, window_name="launcher", window_title=launcher_title, interruptor=None, limit=-1):
         time.sleep(wait)
         self.setFocusRegionsFromStore(target, window_name)
 
         clicked = False
         stop = False
         count = 0
-        while not clicked and interruptor() and not stop:
+        while not clicked and not stop:
             print('Searching... ', self.title, self.focus_region)
             clicked = self.searchAndClick(
                 target, window_width, language_independent, click, window_title)
+
+            if interruptor == 'game' and gameIsRunning():
+                break
 
             if limit > 0:
                 count += 1
@@ -421,8 +421,12 @@ def findMatchFromLauncher():
                     print('interruptor: ', acceptButtonOnSight())
                     return not acceptButtonOnSight()
 
+                limit = -1
+                if find_match[target_index] == 'lockChamp':
+                    limit = 90
+
                 currentWindow.searchAndClickUntilFound(
-                    find_match[target_index], launcher_width)
+                    find_match[target_index], launcher_width, limit=limit)
         else:
             # Check if match was rejected
             if acceptButtonOnSight():
@@ -445,6 +449,12 @@ def waitGameToLaunch():
             time.sleep(20)
             game_running = True
 
+def gameIsRunning():
+    windows = pyautogui.getWindowsWithTitle(game_title)
+    if len(windows) > 0:
+        return True
+    return False
+
 
 def blindClickGame():
     def buy(item_name):
@@ -463,7 +473,7 @@ def blindClickGame():
             if getButtonNew('redo') != None:
                 press_key('p')
                 return True
-            press_key('p')
+        press_key('p')
         return False
 
     # Game in progress
@@ -583,7 +593,7 @@ def blindClickGame():
 
 def postGame():
     # Focus launcher
-    currentWindow.setWindow(pyautogui.getWindowsWithTitle(launcher_title)[0])
+    currentWindow.focusWindow(launcher_title)
 
     time.sleep(10)
     # honor opponents
@@ -663,8 +673,12 @@ def findMatchAgain():
                     print('interruptor: ', acceptButtonOnSight())
                     return not acceptButtonOnSight()
 
+                limit = -1
+                if find_match_again[target_index] == 'lockChamp':
+                    limit = 90
+
                 currentWindow.searchAndClickUntilFound(
-                    find_match_again[target_index], launcher_width)
+                    find_match_again[target_index], launcher_width, limit=limit)
         else:
             # Check if match was rejected
             if acceptButtonOnSight():
