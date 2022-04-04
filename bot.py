@@ -477,7 +477,7 @@ def blindClickGame():
         press_key('p')
         return False
 
-    # Game in progressa
+    # Game in progress
     buy_count = 0
     items_to_buy = ['doranSword', 'krakenSlayer', 'hydra']
     game_in_progress = True
@@ -587,7 +587,7 @@ def blindClickGame():
                 time.sleep(30)
 
                 # Buy something from shop
-                buy('kraken')
+                buy('krakenSlayer')
 
             if seconds % 285 == 0:
                 # Temporary shopping
@@ -598,7 +598,7 @@ def blindClickGame():
                 time.sleep(30)
 
                 # Buy something from shop
-                buy('kraken')
+                buy('hydra')
 
             # Move back a little
             if random.randint(1, 10) == 1:
