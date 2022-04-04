@@ -449,6 +449,7 @@ def waitGameToLaunch():
             time.sleep(20)
             game_running = True
 
+
 def gameIsRunning():
     windows = pyautogui.getWindowsWithTitle(game_title)
     if len(windows) > 0:
@@ -476,9 +477,9 @@ def blindClickGame():
         press_key('p')
         return False
 
-    # Game in progress
+    # Game in progressa
     buy_count = 0
-    items_to_buy = ['doranSword', 'krakenSlayer']
+    items_to_buy = ['doranSword', 'krakenSlayer', 'hydra']
     game_in_progress = True
     lane_to_go = random.randint(1, 3)
     aggresive_pushing = False
@@ -488,6 +489,7 @@ def blindClickGame():
         if len(pyautogui.getWindowsWithTitle(game_title)) > 0:
             # Check health
             low_health_point = currentWindow.getCoordsFromTarget('lowHp')
+            print(low_health_point)
             if pyautogui.pixelMatchesColor(low_health_point[0], low_health_point[1], expectedRGBColor=(1, 13, 7), tolerance=12):
                 print('low health!')
                 cur_time = 0
@@ -549,12 +551,35 @@ def blindClickGame():
                 if close_button != None:
                     press_key('p')
 
+            if seconds % 10 == 0:
+                # Use random skill
+                skills = ['q', 'w', 'e', 'r', 'd', 'f']
+                for i in range(random.randint(1, 6)):
+                    press_key(skills[random.randint(0, 5)])
+                    time.sleep(0.05)
+
+                    w = game_proportions["width"]
+                    h = game_proportions["height"]
+                    x_fr = random.randint(
+                        targets['closeRange']['x_start'], targets['closeRange']['x_end'])
+                    y_fr = random.randint(
+                        targets['closeRange']['y_start'], targets['closeRange']['y_end'])
+
+                    click(currentWindow.x + int((x_fr / w) * currentWindow.width),
+                          (currentWindow.y + int((y_fr / h) * currentWindow.height)))
+                    time.sleep(random.random())
+
+            if seconds % 5 == 0:
+                # Skills up
+                if getButton('skillUp', language_independent=True):
+                    currentWindow.searchAndClickOnce(
+                        'skillUp', game_width, language_independent=True, window_name='game', window_title=game_title)
+
             # Every 1:30 minute, trigger between defensive and aggresive pushing
             if seconds % 90 == 0 and seconds != 0:
                 aggresive_pushing = not aggresive_pushing
 
                 # Temporary shopping
-
                 # Walk to fountain
                 fountain = currentWindow.getCoordsFromTarget('fountain')
                 currentWindow.rightClickAt(fountain[0], fountain[1])
@@ -562,7 +587,18 @@ def blindClickGame():
                 time.sleep(30)
 
                 # Buy something from shop
-                buy('doranSword')
+                buy('kraken')
+
+            if seconds % 285 == 0:
+                # Temporary shopping
+                # Walk to fountain
+                fountain = currentWindow.getCoordsFromTarget('fountain')
+                currentWindow.rightClickAt(fountain[0], fountain[1])
+                # Wait for hp to get full
+                time.sleep(30)
+
+                # Buy something from shop
+                buy('kraken')
 
             # Move back a little
             if random.randint(1, 10) == 1:

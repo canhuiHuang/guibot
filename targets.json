@@ -103,6 +103,13 @@
         "search_height": 42,
         "search_term": "kraken"
     },
+    "hydra": {
+        "x": 0,
+        "y": 0,
+        "search_width": 75,
+        "search_height": 42,
+        "search_term": "hydra"
+    },
     "fullHp": {
         "x": 37.5,
         "y": 40.5,
@@ -111,7 +118,7 @@
     },
     "lowHp": {
         "x": 32,
-        "y": 40.5,
+        "y": 41.5,
         "search_width": 9,
         "search_height": 3
     },
@@ -164,5 +171,17 @@
             "position": 1,
             "out_of": 3
         }
-    ]
+    ],
+    "skillUp": {
+        "x": 21,
+        "y": 35,
+        "search_width": 24,
+        "search_height": 5
+    },
+    "closeRange": {
+        "x_start": 22,
+        "x_end": 49,
+        "y_start": 8,
+        "y_end": 32
+    }
 }
