@@ -343,7 +343,7 @@ def getButton(target, window_title=game_title, language_independent=False, confi
         currentWindow.setWindow(windows[0])
         currentWindow.setFocusRegionsFromStore(
             region_name=target, window_name="game")
-        print('Getting ', target, pyautogui.locateOnScreen(
+        print('Locating --> ', target, pyautogui.locateOnScreen(
             imagePath(), region=currentWindow.getFocusRegionsFromStore(region_name=target, window_name="game"), confidence=confidence))
         return pyautogui.locateOnScreen(imagePath(), region=currentWindow.getFocusRegionsFromStore(region_name=target, window_name="game"), confidence=confidence)
     return None
@@ -376,14 +376,14 @@ def getButtonNew(target, window_title=game_title, language_independent=False):
 
     if len(windows) > 0:
         currentWindow.setWindow(windows[0])
-        print(target, pyautogui.locateOnScreen(
+        print('Locating --> ', target, pyautogui.locateOnScreen(
             imagePath(), region=currentWindow.region, confidence=image_accuracy))
         return pyautogui.locateOnScreen(imagePath(), region=currentWindow.region, confidence=image_accuracy)
     return None
 
 
 def getButtonLauncher(target, region):
-    print(target, pyautogui.locateOnScreen(
+    print('Locating --> ', target, pyautogui.locateOnScreen(
         f"resources/{language}/{target}{launcher_width}.png", region=region, confidence=image_accuracy))
     return pyautogui.locateOnScreen(f"resources/{language}/{target}{launcher_width}.png", region=region, confidence=image_accuracy)
 
@@ -491,7 +491,7 @@ def blindClickGame():
             low_health_point = currentWindow.getCoordsFromTarget('lowHp')
             print(low_health_point)
             if pyautogui.pixelMatchesColor(low_health_point[0], low_health_point[1], expectedRGBColor=(1, 13, 7), tolerance=12):
-                print('low health!')
+                print('player is low health!')
                 cur_time = 0
                 time_limit = 50
 
@@ -502,6 +502,7 @@ def blindClickGame():
                 # Wait for hp to get full
                 full_hp = getButton('fullHp', language_independent=True)
                 while full_hp == None:
+                    print('Waiting for hp to recover...')
                     time.sleep(2)
                     currentWindow.clickAt(fountain[0], fountain[1])
                     cur_time += 2
