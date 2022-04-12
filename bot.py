@@ -720,7 +720,7 @@ find_match = ['play', 'ai', 'intermedia', 'confirm',
               'findMatch', 'accept', 'pickChamp', 'lockChamp']
 find_match_again = ['playAgain', 'findMatch',
                     'accept', 'pickChamp', 'lockChamp']
-random_clicks = ['randomClick']
+random_clicks = ['randomClickx']
 
 # Game Flows
 blind_play = {
