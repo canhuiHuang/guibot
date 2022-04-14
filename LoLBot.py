@@ -1,6 +1,4 @@
 import datetime as dt
-
-from anyio import current_time
 from Bot import *
 import json
 from PIL import Image
@@ -28,6 +26,7 @@ class LoLBot(Bot):
         self.language = 'spanish'
         self.launcher_title = 'League of Legends'
         self.game_title = 'League of Legends (TM) Client'
+        self.chat_texts = []
 
         self.gui = createGui('LightGrey2')
         self.logs = ''
@@ -93,6 +92,7 @@ class LoLBot(Bot):
         self.language = settingsObj['language']
         self.launcher_title = translated[self.language]['launcher_title']
         self.game_title = translated[self.language]['game_title']
+        self.chat_texts = translated[self.language]['chat_texts']
         self.loadFocusRegions(targets)
 
     def focusWindow(self, window_title):
@@ -176,9 +176,12 @@ class LoLBot(Bot):
             image_path = f"resources/{target}{window_width}.png"
 
         # Target found box
-        focus_region = self.getFocusRegionFromStore(target, type)
+        focus_region = None
         if region != None:
             focus_region = region
+        else:
+            focus_region = self.getFocusRegionFromStore(target, type)
+
         return pyautogui.locateOnScreen(
             image_path, region=focus_region, confidence=image_confidence)
 
@@ -349,7 +352,7 @@ class LoLBot(Bot):
 
     def findMatch(self):
         find_match = ['play', 'ai', 'intermedia', 'confirm', 'playAgain',
-                      'findMatch', 'accept', 'pickChamp', 'lockChamp']
+                      'findMatch', 'accept', 'pickChamp', 'lockChamp', 'ok', 'freeChamp']
         game_has_started = False
 
         try:
@@ -360,15 +363,48 @@ class LoLBot(Bot):
 
                 # Click on buttons
                 for target_name in find_match:
-
-                    # Enters champioon select
+                    # accept gifts & level ups
+                    launcher_region = (self.launcher_window.left, self.launcher_window.top,
+                                       self.launcher_window.width, self.launcher_window.height)
+                    # Enters champion select
                     if target_name == 'pickChamp':
-                        time.sleep(4)
+                        time.sleep(2)
                         self.consoleLog("Picking champion...")
                         for n in range(5):
                             self.click(
                                 self.stored_regions['pickChamp']['x'] + n * self.stored_regions['pickChamp']['x_gap'], self.stored_regions['pickChamp']['y'], 'launcher')
                             time.sleep(0.2)
+
+                    elif target_name == 'ok':
+                        # Press OK Button on screen
+                        accept_levelup_button = self.getTarget(
+                            'ok', region=launcher_region)
+                        # accept_gifts_button = getButtonLauncher('acceptGifts', launcher_region)
+                        if accept_levelup_button != None:
+                            with Image.open(f"resources/{self.language}/ok{self.launcher_window.width}.png") as img:
+
+                                click(int(accept_levelup_button[0] + img.size[0] / 2),
+                                      int(accept_levelup_button[1] + img.size[1] / 2))
+                            time.sleep(2)
+
+                    elif target_name == 'freeChamp':
+                        # Look if a free champion is given
+                        for champ in self.stored_regions['championsPosition']:
+                            champ_box = self.getTarget(
+                                champ['name'], language_independent=True, region=launcher_region)
+
+                            if champ_box != None:
+                                champ_box_width = self.launcher_window.width / \
+                                    champ['out_of']
+                                x_fr = (champ_box_width *
+                                        champ['position']) - champ_box_width / 2
+                                y_fr = self.stored_regions['hoverSelect']['y']
+
+                                self.moveCursorTo(x_fr, y_fr, self.game_title)
+                                time.sleep(3)
+                                click(x_fr, y_fr)
+                                break
+
                     else:
                         self.consoleLog(
                             f"Looking for target: {target_name}...")
@@ -409,7 +445,6 @@ class LoLBot(Bot):
             if cur_time >= timeout:
                 break
             cur_time += 1
-            print(cur_time)
 
     def playGame(self):
         def buy(item_name):
@@ -435,6 +470,8 @@ class LoLBot(Bot):
         # Game in progress
         buy_count = 0
         items_to_buy = ['doranSword', 'krakenSlayer', 'hydra']
+        chat_addons = ['xd', 'uwu', 'o_o', 'ayy', 'hahah']
+        chance_to_type = 10  # %
         game_in_progress = True
         lane_to_go = random.randint(1, 3)
         aggresive_pushing = False
@@ -524,8 +561,20 @@ class LoLBot(Bot):
                             self.searchAndClick(
                                 'skillUp', 'game', True, click)
 
-                    # Every 1:30 minute, trigger between defensive and aggresive pushing
+                    # Type something in the chat
                     if seconds % 90 == 0 and seconds != 0:
+                        if random.randint(1, 100) <= chance_to_type:
+                            text = list(self.chat_texts.items())[random.randint(
+                                0, len(self.chat_texts.items()) - 1)][1]
+                            if random.randint(1, 100) <= 15:
+                                text += ' ' + chat_addons[random.randint(
+                                    0, len(chat_addons) - 1)]
+
+                            self.consoleLog(f'Typing {text}')
+                            typeInChat(text)
+
+                    # Every 2:30 minute, trigger between defensive and aggresive pushing
+                    if seconds % 150 == 0 and seconds != 0:
                         aggresive_pushing = not aggresive_pushing
 
                         fountain = self.getCoordsByTarget(
@@ -538,7 +587,7 @@ class LoLBot(Bot):
                         buy('krakenSlayer')
 
                     # 5% chance to move back a little
-                    if random.randint(1, 20) == 1:
+                    if random.randint(1, 100) <= 5:
                         fountain = self.getCoordsByTarget(
                             'fountain', type='game')
                         right_click(fountain[0], fountain[1])
