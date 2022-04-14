@@ -20,3 +20,6 @@ Game should be either `borderless` or `window mode`
 Click on `Start` to start the bot, the bot will find its way to find an ai match & play it until the end of times.
 
 Hold `Ctrl`+`Shift`+`Q` or `Ctrl`+`Esc` until the console says `Bot was stopped` to stop the bot.
+
+<br>
+This program is made only for educational purposes.

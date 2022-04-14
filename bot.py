@@ -47,10 +47,6 @@ class Bot:
         right_click(x, y)
 
 
-def exitNotPressed():
-    return not (keyboard.is_pressed('ctrl+escape') or keyboard.is_pressed('ctrl+shift+q'))
-
-
 def getWindowObj(title):
     if len(pyautogui.getWindowsWithTitle(title)) > 0:
         for window in pyautogui.getWindowsWithTitle(title):
