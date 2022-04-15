@@ -20,4 +20,4 @@ def createGui(theme):
             30, 10), expand_x=True, key='-CONSOLE-', justification='left', disabled=True, autoscroll=True, right_click_menu=log_menu)]
     ]
 
-    return sg.Window('Guibot AutoLevel', layout, icon='icon.ico')
+    return sg.Window('Guibot AutoLevel', layout, icon='resources/icon.ico')
