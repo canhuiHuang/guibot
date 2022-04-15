@@ -3,130 +3,151 @@
         "x": 0,
         "y": 0,
         "search_width": 8,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": false
     },
     "ai": {
         "x": 3,
         "y": 3,
         "search_width": 6,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": false
     },
     "intermedia": {
         "x": 16,
         "y": 21,
         "search_width": 8,
-        "search_height": 2
+        "search_height": 2,
+        "language_independent": false
     },
     "confirm": {
         "x": 17,
         "y": 26,
         "search_width": 9,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": false
     },
     "findMatch": {
         "x": 17,
         "y": 26,
         "search_width": 9,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": false
     },
     "accept": {
         "x": 20,
         "y": 20,
         "search_width": 11,
-        "search_height": 5
+        "search_height": 5,
+        "language_independent": false
     },
     "playAgain": {
         "x": 17,
         "y": 26,
         "search_width": 9,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": false
     },
     "pickRandom": {
         "x": 17,
         "y": 26,
         "search_width": 9,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": true
     },
     "champSelect": {
         "x": 14,
         "y": 0,
         "search_width": 24,
-        "search_height": 5
+        "search_height": 5,
+        "language_independent": false
     },
     "pickChamp": {
         "x": 15.5,
         "y": 6.5,
         "x_gap": 4,
-        "y_gap": 4
+        "y_gap": 4,
+        "language_independent": true
     },
     "lockChamp": {
         "x": 21.5,
         "y": 23,
         "search_width": 9,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": false
     },
     "continue": {
         "x": 32,
         "y": 23,
         "search_width": 13,
-        "search_height": 5
+        "search_height": 5,
+        "language_independent": false
     },
     "close": {
         "x": 10,
         "y": 2,
         "search_width": 62,
-        "search_height": 30
+        "search_height": 30,
+        "language_independent": true
     },
     "unlockedCamera": {
         "x": 62,
         "y": 41,
         "search_width": 5,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": true
     },
     "searchShopItem": {
         "x": 0,
         "y": 0,
         "search_width": 75,
-        "search_height": 42
+        "search_height": 42,
+        "language_independent": false
     },
     "redo": {
         "x": 0,
         "y": 0,
         "search_width": 75,
-        "search_height": 42
+        "search_height": 42,
+        "language_independent": false
     },
     "doranSword": {
         "x": 0,
         "y": 0,
         "search_width": 75,
         "search_height": 42,
-        "search_term": "doran"
+        "search_term": "doran",
+        "language_independent": false
     },
     "krakenSlayer": {
         "x": 0,
         "y": 0,
         "search_width": 75,
         "search_height": 42,
-        "search_term": "kraken"
+        "search_term": "kraken",
+        "language_independent": false
     },
     "hydra": {
         "x": 0,
         "y": 0,
         "search_width": 75,
         "search_height": 42,
-        "search_term": "hydra"
+        "search_term": "hydra",
+        "language_independent": false
     },
     "fullHp": {
         "x": 37.5,
         "y": 40.5,
         "search_width": 9,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": true
     },
     "lowHp": {
         "x": 32,
         "y": 41.5,
         "search_width": 9,
-        "search_height": 3
+        "search_height": 3,
+        "language_independent": true
     },
     "fountain": {
         "x": 66.56,
@@ -182,12 +203,34 @@
         "x": 21,
         "y": 35,
         "search_width": 24,
-        "search_height": 5
+        "search_height": 5,
+        "language_independent": true
     },
     "closeRange": {
         "x_start": 22,
         "x_end": 49,
         "y_start": 8,
         "y_end": 32
+    },
+    "runesUnlocked": {
+        "x": 25,
+        "y": 22,
+        "search_width": 5,
+        "search_height": 3,
+        "language_independent": true
+    },
+    "ok": {
+        "x": 0,
+        "y": 0,
+        "search_width": 51,
+        "search_height": 29,
+        "language_independent": false
+    },
+    "acceptError": {
+        "x": 0,
+        "y": 0,
+        "search_width": 51,
+        "search_height": 29,
+        "language_independent": false
     }
 }

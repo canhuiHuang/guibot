@@ -160,7 +160,7 @@ class LoLBot(Bot):
             self._game_status = color
             self._setGameLight(color)
 
-    def getTarget(self, target, language_independent=False, type="launcher", region=None, confidence=0.8):
+    def getTarget(self, target_name, language_independent=False, type="launcher", region=None, confidence=0.8, special=False):
         image_confidence = self.image_accuracy
         if confidence != 0.8:
             image_confidence = confidence
@@ -171,16 +171,20 @@ class LoLBot(Bot):
             window_width = self.game_window.width
             self.focusWindow(self.game_title)
 
-        image_path = f"resources/{self.language}/{target}{window_width}.png"
-        if language_independent:
-            image_path = f"resources/{target}{window_width}.png"
+        image_path = f"resources/{self.language}/{target_name}{window_width}.png"
+        if special and language_independent:
+            image_path = f"resources/{target_name}{window_width}.png"
+        elif self.stored_regions[target_name]['language_independent']:
+            image_path = f"resources/{target_name}{window_width}.png"
+        elif language_independent:
+            image_path = f"resources/{target_name}{window_width}.png"
 
         # Target found box
         focus_region = None
         if region != None:
             focus_region = region
         else:
-            focus_region = self.getFocusRegionFromStore(target, type)
+            focus_region = self.getFocusRegionFromStore(target_name, type)
 
         return pyautogui.locateOnScreen(
             image_path, region=focus_region, confidence=image_confidence)
@@ -352,7 +356,7 @@ class LoLBot(Bot):
 
     def findMatch(self):
         find_match = ['play', 'ai', 'intermedia', 'confirm', 'playAgain',
-                      'findMatch', 'accept', 'pickChamp', 'lockChamp', 'ok', 'freeChamp']
+                      'findMatch', 'accept', 'pickChamp', 'lockChamp', 'ok', 'freeChamp', 'acceptError', 'runesUnlocked']
         game_has_started = False
 
         try:
@@ -375,23 +379,12 @@ class LoLBot(Bot):
                                 self.stored_regions['pickChamp']['x'] + n * self.stored_regions['pickChamp']['x_gap'], self.stored_regions['pickChamp']['y'], 'launcher')
                             time.sleep(0.2)
 
-                    elif target_name == 'ok':
-                        # Press OK Button on screen
-                        accept_levelup_button = self.getTarget(
-                            'ok', region=launcher_region)
-                        # accept_gifts_button = getButtonLauncher('acceptGifts', launcher_region)
-                        if accept_levelup_button != None:
-                            with Image.open(f"resources/{self.language}/ok{self.launcher_window.width}.png") as img:
-
-                                click(int(accept_levelup_button[0] + img.size[0] / 2),
-                                      int(accept_levelup_button[1] + img.size[1] / 2))
-                            time.sleep(2)
-
                     elif target_name == 'freeChamp':
                         # Look if a free champion is given
+                        self.consoleLog("Looking for free champion...")
                         for champ in self.stored_regions['championsPosition']:
                             champ_box = self.getTarget(
-                                champ['name'], language_independent=True, region=launcher_region)
+                                champ['name'], language_independent=True, region=launcher_region, special=True)
 
                             if champ_box != None:
                                 champ_box_width = self.launcher_window.width / \
@@ -405,13 +398,31 @@ class LoLBot(Bot):
                                 click(x_fr, y_fr)
                                 break
 
+                    # Look these targets throughot the whole launcher screen
+                    elif target_name in ['ok', 'acceptError']:
+                        self.consoleLog(
+                            f"Looking for target: {target_name}...")
+
+                        target_button = self.getTarget(
+                            target_name, region=launcher_region)
+                        if target_button != None:
+                            with Image.open(f"resources/{self.language}/{target_name}{self.launcher_window.width}.png") as img:
+
+                                click(int(target_button[0] + img.size[0] / 2),
+                                      int(target_button[1] + img.size[1] / 2))
+                            time.sleep(2)
+
                     else:
                         self.consoleLog(
                             f"Looking for target: {target_name}...")
                         target = self.getTarget(target_name)
                         if target != None:
                             self.consoleLog(f"Target {target_name} found")
-                            with Image.open(f"resources/{self.language}/{target_name}{self.launcher_window.width}.png") as img:
+
+                            language = self.language + '/'
+                            if self.stored_regions[target_name]['language_independent']:
+                                language = ""
+                            with Image.open(f"resources/{language}{target_name}{self.launcher_window.width}.png") as img:
 
                                 # Click on the center of the target
                                 click(int(target[0] + img.size[0] / 2),
@@ -525,7 +536,7 @@ class LoLBot(Bot):
 
                         # Lock camera
                         unlock_icon = self.getTarget(
-                            'unlockedCamera', language_independent=True, type='game', confidence=0.98)
+                            'unlockedCamera', type='game', confidence=0.98)
                         if unlock_icon != None:
                             press_key('y')
 
@@ -534,7 +545,7 @@ class LoLBot(Bot):
 
                         # Close store if open
                         close_button = self.getTarget(
-                            'close', language_independent=True, type='game')
+                            'close', type='game')
                         if close_button != None:
                             press_key('p')
 
@@ -557,7 +568,7 @@ class LoLBot(Bot):
                             time.sleep(random.random())
 
                         # Skills up
-                        if self.getTarget('skillUp', language_independent=True, type='game'):
+                        if self.getTarget('skillUp', type='game'):
                             self.searchAndClick(
                                 'skillUp', 'game', True, click)
 
@@ -622,53 +633,16 @@ class LoLBot(Bot):
 
     def postGame(self):
         try:
+            time.sleep(2)
             # Focus launcher
             self.getLauncherWindow()
             self.focusWindow(self.launcher_title)
 
             time.sleep(10)
-            # honor opponents
+            # honor teammate
+            self.consoleLog(f'Game is over. Honoring a teammate...')
             click(int(self.launcher_window.width / 2),
                   (int(self.launcher_window.height / 2)))
 
-            # accept gifts & level ups
-            launcher_region = (self.launcher_window.left, self.launcher_window.top,
-                               self.launcher_window.width, self.launcher_window.height)
-
-            play_again_button = self.getTarget('playAgain')
-            while exitNotPressed() and play_again_button == None:
-                time.sleep(4)
-
-                # Look if a free champion is given
-                for champ in self.stored_regions['championsPosition']:
-                    champ_box = self.getTarget(
-                        champ['name'], language_independent=True, region=launcher_region)
-
-                    if champ_box != None:
-                        champ_box_width = self.launcher_window.width / \
-                            champ['out_of']
-                        x_fr = (champ_box_width *
-                                champ['position']) - champ_box_width / 2
-                        y_fr = self.stored_regions['hoverSelect']['y']
-
-                        self.moveCursorTo(x_fr, y_fr, self.game_title)
-                        time.sleep(3)
-                        click(x_fr, y_fr)
-                        break
-
-                # Press OK Button on screen
-                accept_levelup_button = self.getTarget(
-                    'ok', type='launcher', region=launcher_region)
-                # accept_gifts_button = getButtonLauncher('acceptGifts', launcher_region)
-
-                if accept_levelup_button != None:
-                    with Image.open(f"resources/{self.language}/ok{self.launcher_window.width}.png") as img:
-
-                        click(int(accept_levelup_button[0] + img.size[0] / 2),
-                              int(accept_levelup_button[1] + img.size[1] / 2))
-                    time.sleep(2)
-
-                play_again_button = self.getTarget(
-                    'playAgain', type='launcher', region=launcher_region)
         except Exception as e:
             self.consoleLog(f'WARN: {e}')
