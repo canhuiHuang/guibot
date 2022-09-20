@@ -355,7 +355,7 @@ class LoLBot(Bot):
         attackWalk(x, y)
 
     def findMatch(self):
-        find_match = ['play', 'ai', 'intermedia', 'confirm', 'playAgain',
+        find_match = ['play', 'ai', 'intermedia', 'confirm', 'continuePostGame','playAgain',
                       'findMatch', 'accept', 'pickChamp', 'lockChamp', 'ok', 'freeChamp', 'acceptError', 'runesUnlocked']
         game_has_started = False
 
