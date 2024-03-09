@@ -23,6 +23,8 @@ class Bot:
         self.height = windowObj.height
         self.region = (windowObj.left, windowObj.top,
                        windowObj.width, windowObj.height)
+        
+        print('Window {title} has been set.', windowObj.title)
 
     def loadFocusRegions(self, regions):
         self.stored_regions = regions

@@ -141,6 +141,7 @@ class LoLBot(Bot):
 
     def getGameWindow(self):
         self.game_window = getWindowObj(self.game_title)
+        self.consoleLog(f'Game window set: {self.game_window}')
 
         color = ''
         if self.game_window != None:
@@ -161,13 +162,20 @@ class LoLBot(Bot):
             self._setGameLight(color)
 
     def getTarget(self, target_name, language_independent=False, type="launcher", region=None, confidence=0.8, special=False):
+        self.consoleLog("Inside getTarget")
         image_confidence = self.image_accuracy
         if confidence != 0.8:
             image_confidence = confidence
-        window_width = self.launcher_window.width
+        self.consoleLog("BEFORE w.width")
+
+        window_width = None
+        if self.launcher_window:
+            window_width = self.launcher_window.width
+        self.consoleLog("AFTER w.width")
         if type == 'launcher':
             self.focusWindow(self.launcher_title)
         elif type == 'game':
+            self.consoleLog(f'game_window.width: {self.game_window.width}')
             window_width = self.game_window.width
             self.focusWindow(self.game_title)
 
@@ -181,19 +189,32 @@ class LoLBot(Bot):
 
         # Target found box
         focus_region = None
+        print("AAAAAAAAQUIII1")
         if region != None:
+            print("AAAAAAAAQUIII2")
             focus_region = region
         else:
+            print("AAAAAAAAQUIII3")
             focus_region = self.getFocusRegionFromStore(target_name, type)
 
-        return pyautogui.locateOnScreen(
-            image_path, region=focus_region, confidence=image_confidence)
+        print("AAAAAAAAQUIII4")
+        print(focus_region)
+        print(image_path)
+        try:
+            return pyautogui.locateOnScreen(
+                image_path, region=focus_region, confidence=image_confidence)
+        except:
+            return None
 
     def getFocusRegionFromStore(self, region_name, type="launcher"):
+        print("AQUIIIIIIIII A")
         w_fr = self.launcher_proportions["width"]
+        print("AQUIIIIIIIII B")
         h_fr = self.launcher_proportions["height"]
-        w = self.launcher_window.width
-        h = self.launcher_window.height
+        print("AQUIIIIIIIII C")
+        if self.launcher_window:
+            w = self.launcher_window.width
+            h = self.launcher_window.height
         if type == 'game':
             w_fr = self.game_proportions["width"]
             h_fr = self.game_proportions["height"]
@@ -232,10 +253,11 @@ class LoLBot(Bot):
     def click(self, dx, dy, type):
         w_fr = self.launcher_proportions["width"]
         h_fr = self.launcher_proportions["height"]
-        x = self.launcher_window.left
-        y = self.launcher_window.top
-        w = self.launcher_window.width
-        h = self.launcher_window.height
+        if self.launcher_window:
+            x = self.launcher_window.left
+            y = self.launcher_window.top
+            w = self.launcher_window.width
+            h = self.launcher_window.height
         if type == 'game':
             w_fr = self.game_proportions["width"]
             h_fr = self.game_proportions["height"]
@@ -315,10 +337,17 @@ class LoLBot(Bot):
             return self.game_proportions
 
     def getCoordsByTarget(self, target_name, type):
-        cur_x = self.launcher_window.left
-        cur_y = self.launcher_window.top
-        cur_width = self.launcher_window.width
-        cur_height = self.launcher_window.height
+        self.consoleLog("3 - inside getcoordsbytarget")
+        cur_x = None
+        cur_y = None
+        cur_width = None
+        cur_height = None
+        if self.launcher_window:
+            cur_x = self.launcher_window["left"]
+            cur_y = self.launcher_window["top"]
+            cur_width = self.launcher_window["width"]
+            cur_height = self.launcher_window["height"]
+        self.consoleLog("4 - inside getcoordsbytarget")
         width_proportion = self.launcher_proportions['width']
         height_proportion = self.launcher_proportions['height']
         if type == 'game':
@@ -355,15 +384,15 @@ class LoLBot(Bot):
         attackWalk(x, y)
 
     def findMatch(self):
-        find_match = ['play', 'ai', 'intermedia', 'confirm', 'continuePostGame','playAgain',
-                      'findMatch', 'accept', 'pickChamp', 'lockChamp', 'ok', 'freeChamp', 'acceptError', 'runesUnlocked']
+        find_match = ['play', 'ai', 'intermedia', 'confirm', 'accept', 'continuePostGame','playAgain',
+                      'findMatch', 'accept', 'pickChamp', 'lockChamp', 'ok', 'freeChamp', 'acceptError', 'accept', 'runesUnlocked']
         game_has_started = False
 
         try:
             while exitNotPressed() and not game_has_started:
                 self.consoleLog('Finding match...')
 
-                time.sleep(0.6)
+                time.sleep(0.9)
 
                 # Click on buttons
                 for target_name in find_match:
@@ -430,14 +459,14 @@ class LoLBot(Bot):
                         else:
                             self.consoleLog(f"{target_name} not found.")
 
-                        time.sleep(0.6)
+                        time.sleep(0.9)
 
                 windows = pyautogui.getWindowsWithTitle(self.game_title)
                 if len(windows) > 0:
                     self.consoleLog('Game about to start...')
                     game_has_started = True
         except Exception as e:
-            self.consoleLog(f'WARN: {e}')
+            self.consoleLog(f'findMatch WARN: {e}')
 
     def waitGameToLaunch(self):
         game_running = False
@@ -451,13 +480,14 @@ class LoLBot(Bot):
                 self.consoleLog('Game has started.')
                 self.setWindow(windows[0])
                 self.getGameWindow()
-                time.sleep(20)
+                time.sleep(10)
                 game_running = True
             if cur_time >= timeout:
                 break
             cur_time += 1
 
     def playGame(self):
+        self.consoleLog("Playing the game.")
         def buy(item_name):
             press_key('p')
 
@@ -489,9 +519,13 @@ class LoLBot(Bot):
         seconds = 0
 
         try:
-            while exitNotPressed() and self.getTarget('continue', type='game') == None and game_in_progress:
-
+            print(exitNotPressed())
+            print(game_in_progress)
+            # print(self.getTarget('continue', type='game'))
+            while exitNotPressed() and self.getTarget('continue', type='game') and game_in_progress:
+                self.consoleLog("1 - inside while")
                 if len(pyautogui.getWindowsWithTitle(self.game_title)) > 0:
+                    self.consoleLog("2 - ")
                     # Check health
                     low_health_point = self.getCoordsByTarget(
                         'lowHp', type='game')
@@ -529,6 +563,8 @@ class LoLBot(Bot):
                         botA = self.getCoordsByTarget('botA', type='game')
                         attackWalk(botA[0], botA[1])
 
+                    self.consoleLog("3 - ")
+
                     # Miscellaneous Periodic checks
                     if seconds % 6 == 0:
                         # Update current window position ( In case the window is moving )
@@ -555,8 +591,10 @@ class LoLBot(Bot):
                         for i in range(random.randint(1, 6)):
                             press_key(skills[random.randint(0, 5)])
                             time.sleep(0.05)
-
+                            
+                            self.consoleLog("2 - before width")
                             w = self.game_proportions["width"]
+                            self.consoleLog("2 - after width")
                             h = self.game_proportions["height"]
                             x_fr = random.randint(
                                 self.stored_regions['closeRange']['x_start'], self.stored_regions['closeRange']['x_end'])
@@ -629,7 +667,7 @@ class LoLBot(Bot):
                     # Press Enter in case click fails
                     press_key('enter')
         except Exception as e:
-            self.consoleLog(f'Something happened: {e}')
+            self.consoleLog(f'playGame WARN: {e}')
 
     def postGame(self):
         try:
@@ -645,4 +683,4 @@ class LoLBot(Bot):
                   (int(self.launcher_window.height / 2)))
 
         except Exception as e:
-            self.consoleLog(f'WARN: {e}')
+            self.consoleLog(f'postgame WARN: {e}')
